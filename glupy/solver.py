@@ -1,5 +1,5 @@
 """The Glucose Wrapper itself."""
-import subprocess
+import subprocess, os, signal, time
 import tempfile
 from pathlib import Path
 
@@ -17,7 +17,14 @@ class Solver:
     def _run_subprocess(self, args: list[str], wait_time: int | None) -> str:
         """Run the glucose process. Wait for answer."""
         process = subprocess.Popen([self._glucose] + args, stdout=subprocess.PIPE, universal_newlines=True)
-        return process.communicate(timeout=wait_time)[0].strip().split("\n")[-1]
+        start_time = time.time()
+        while wait_time is None or time.time() < start_time + wait_time:
+            return_code = process.poll()
+            if return_code is not None:
+                return process.stdout.readlines()[-1].strip()
+
+        process.kill()
+        return ""
 
     def _tempfile(self, cnf: CNF) -> str:
         """Generate a tempfile with CNF."""
@@ -27,9 +34,12 @@ class Solver:
         cnf.to_file(file)
         return str(file)
 
-    def solve(self, cnf: CNF, timeout: int | None = None) -> bool:
+    def solve(self, cnf: CNF, timeout: float | None = None) -> bool | None:
         """Solve CNF, return whether satisfiable."""
-        return self._run_subprocess([self._tempfile(cnf)], timeout) == "s SATISFIABLE"
+        r = self._run_subprocess([self._tempfile(cnf)], timeout)
+        if r:
+            return r == "s SATISFIABLE"
+        return None
 
     def __del__(self) -> None:
         """Cleanup tempfiles."""

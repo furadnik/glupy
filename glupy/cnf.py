@@ -2,22 +2,8 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Iterable, TextIO
 
-
-def cnf_parser(file: TextIO) -> Iterable[list[int]]:
-    """Parse a CNF file."""
-    header = file.readline()
-
-    if not header.startswith("p cnf "):  # not checking the header numbers
-        raise ValueError("Wrong CNF file format.")
-
-    for line in file.readlines():
-        if not (line.endswith(" 0") or line.endswith(" 0\n")):
-            raise ValueError("Incorrect CNF line ")
-
-        # leave default int conversion error
-        yield [int(x) for x in line[:-2].strip().split(" ")]
+from .file_parsers import cnf_parser
 
 
 class CNF:
