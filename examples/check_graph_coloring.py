@@ -21,10 +21,10 @@ def _graph_and_colors_to_cnf(graph: graph, num_colors: int) -> CNF:
 
     # each vertex only has one color.
     for vertex in graph[0]:
-        # every edge has at least one color
+        # every vertex has at least one color
         cnf.add_clause([_get_variable(vertex, x, num_colors) for x in range(1, num_colors + 1)])
 
-        # no edge has two colors
+        # no vertex has two or more colors
         for color in range(1, num_colors):
             for other_color in range(color + 1, num_colors + 1):
                 cnf.add_clause(
