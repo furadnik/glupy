@@ -54,7 +54,7 @@ def approx_graph_chromatic_number(graph: graph) -> int:
             elif r is False:
                 lower = i
 
-        print(f"{int(timeout)}: {lower} <= C <= {upper}")
+        print(f"{int(timeout)}: {lower} < C <= {upper}")
         timeout *= multiplier
 
     return upper
